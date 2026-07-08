@@ -1,65 +1,109 @@
-import Image from "next/image";
+'use client';
+
+import React from 'react';
+import { useSafeStore } from '@/store/useSafeStore';
+import Navigation from '@/components/Navigation';
+
+// Component imports
+import LandingPage from '@/components/LandingPage';
+import AuthScreen from '@/components/AuthScreen';
+import OnboardingFlow from '@/components/OnboardingFlow';
+import Dashboard from '@/components/Dashboard';
+import SafeRoutes from '@/components/SafeRoutes';
+import AIGuardian from '@/components/AIGuardian';
+import CommunityFeed from '@/components/CommunityFeed';
+import IncidentForm from '@/components/IncidentForm';
+import GuardianMode from '@/components/GuardianMode';
+import EmergencySOS from '@/components/EmergencySOS';
+import ProfilePanel from '@/components/ProfilePanel';
+import SettingsPanel from '@/components/SettingsPanel';
+import AnalyticsPanel from '@/components/AnalyticsPanel';
+
+import { ShieldCheck, Compass, Info, MapPin } from 'lucide-react';
 
 export default function Home() {
+  const { currentView, activeJourney, safetyScore } = useSafeStore();
+
+  // Helper to render active tab views
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'landing':
+        return <LandingPage />;
+      case 'auth':
+        return <AuthScreen />;
+      case 'onboarding':
+        return <OnboardingFlow />;
+      case 'dashboard':
+        return <Dashboard />;
+      case 'routes':
+        return <SafeRoutes />;
+      case 'ai-guardian':
+        return <AIGuardian />;
+      case 'community':
+        return <CommunityFeed />;
+      case 'report':
+        return <IncidentForm />;
+      case 'guardian-mode':
+        return <GuardianMode />;
+      case 'emergency':
+        return <EmergencySOS />;
+      case 'profile':
+        return <ProfilePanel />;
+      case 'settings':
+        return <SettingsPanel />;
+      case 'analytics':
+        return <AnalyticsPanel />;
+      default:
+        return <LandingPage />;
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="relative min-h-screen bg-[#050816] text-white flex flex-col">
+      {/* Global Particle Overlay & Aurora backgrounds */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-accent-primary/5 blur-[120px] animate-aurora-1" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[550px] h-[550px] rounded-full bg-accent-ai/5 blur-[130px] animate-aurora-2" />
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] opacity-40" />
+      </div>
+
+      {/* Floating Header Navigation Bar */}
+      <Navigation />
+
+      {/* Active Journey Top Overlay Alert Banner (if travelling and not on full screen modes) */}
+      {activeJourney && 
+       activeJourney.started && 
+       currentView !== 'emergency' && 
+       currentView !== 'guardian-mode' && (
+        <div className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-6 md:right-auto md:w-80 z-30">
+          <div className="p-3 rounded-xl glass-panel-glow border-accent-ai/30 bg-bg-secondary/90 flex items-center justify-between shadow-lg text-[10px]">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-accent-ai animate-ping" />
+              <div className="flex flex-col">
+                <span className="font-bold text-white uppercase tracking-wider">Active Commute Tracking</span>
+                <span className="text-text-secondary">Destination: {activeJourney.destination} &bull; ETA {activeJourney.eta}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 text-emerald-400 font-bold uppercase tracking-wider">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>{safetyScore}% Safe</span>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      )}
+
+      {/* Active Content Screen container */}
+      <div className="relative z-10 flex-1 flex flex-col">
+        {renderCurrentView()}
+      </div>
+
+      {/* Footer bar (only on landing page) */}
+      {currentView === 'landing' && (
+        <footer className="relative z-10 border-t border-white/5 py-8 text-center text-xs text-text-secondary bg-[#03060f]">
+          <p>&copy; {new Date().getFullYear()} WoSafe Technologies, Inc. All rights protected.</p>
+        </footer>
+      )}
     </div>
   );
 }
