@@ -1,0 +1,47 @@
+"""WoSafe Repositories — Package initialization."""
+
+from app.repositories.base import BaseRepository
+from app.repositories.user_repo import (
+    UserRepository,
+    EmergencyContactRepository,
+    GuardianRepository,
+    JourneyRepository,
+    JourneyEventRepository,
+    IncidentRepository,
+    CommunityReportRepository,
+    SafetyHeatmapRepository,
+    SafeLocationRepository,
+    PoliceStationRepository,
+    HospitalRepository,
+    EmergencySessionRepository,
+    NotificationRepository,
+    EvidenceRepository,
+    AIConversationRepository,
+    RiskAnalysisRepository,
+    ReportRepository,
+    AuditLogRepository,
+    SettingRepository,
+)
+
+__all__ = [
+    "BaseRepository",
+    "UserRepository",
+    "EmergencyContactRepository",
+    "GuardianRepository",
+    "JourneyRepository",
+    "JourneyEventRepository",
+    "IncidentRepository",
+    "CommunityReportRepository",
+    "SafetyHeatmapRepository",
+    "SafeLocationRepository",
+    "PoliceStationRepository",
+    "HospitalRepository",
+    "EmergencySessionRepository",
+    "NotificationRepository",
+    "EvidenceRepository",
+    "AIConversationRepository",
+    "RiskAnalysisRepository",
+    "ReportRepository",
+    "AuditLogRepository",
+    "SettingRepository",
+]

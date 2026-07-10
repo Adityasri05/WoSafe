@@ -1,0 +1,134 @@
+# ============================================
+# WoSafe Backend — Docker Compose
+# ============================================
+# Full-stack development & production setup
+
+services:
+  # ── FastAPI Application ──────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wosafe-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - ./alembic:/app/alembic
+    networks:
+      - wosafe-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ── PostgreSQL Database ──────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: wosafe-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: wosafe
+      POSTGRES_PASSWORD: wosafe_password
+      POSTGRES_DB: wosafe_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - wosafe-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wosafe -d wosafe_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── Redis ────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: wosafe-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - wosafe-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Celery Worker ────────────────────────
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wosafe-celery-worker
+    restart: unless-stopped
+    command: celery -A app.jobs.celery_app worker --loglevel=info --concurrency=4 -Q default,notifications,ai,media
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./app:/app/app
+    networks:
+      - wosafe-network
+
+  # ── Celery Beat (Scheduler) ─────────────
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wosafe-celery-beat
+    restart: unless-stopped
+    command: celery -A app.jobs.celery_app beat --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    volumes:
+      - ./app:/app/app
+    networks:
+      - wosafe-network
+
+  # ── NGINX Reverse Proxy ─────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: wosafe-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
+    networks:
+      - wosafe-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  wosafe-network:
+    driver: bridge

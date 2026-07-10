@@ -1,0 +1,1 @@
+"""WoSafe — Application Package initialization."""

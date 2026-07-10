@@ -1,0 +1,1 @@
+"""WoSafe Core — Package initialization."""

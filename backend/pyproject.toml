@@ -1,0 +1,113 @@
+[project]
+name = "wosafe-backend"
+version = "1.0.0"
+description = "AI-Powered Women's Safety Intelligence Platform — Backend"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [
+    { name = "WoSafe Team" }
+]
+
+dependencies = [
+    # Core Framework
+    "fastapi[standard]>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "python-multipart>=0.0.18",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+
+    # Database
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+    "alembic>=1.14.0",
+    "greenlet>=3.1.0",
+
+    # Redis
+    "redis[hiredis]>=5.2.0",
+
+    # Background Tasks
+    "celery[redis]>=5.4.0",
+
+    # Firebase
+    "firebase-admin>=6.6.0",
+
+    # AI / ML
+    "google-generativeai>=0.8.0",
+    "openai>=1.58.0",
+    "langchain>=0.3.0",
+    "langgraph>=0.2.0",
+    "sentence-transformers>=3.3.0",
+
+    # Maps & Geocoding
+    "httpx>=0.28.0",
+    "geopy>=2.4.1",
+
+    # Notifications
+    "twilio>=9.4.0",
+    "resend>=2.5.0",
+
+    # Storage
+    "cloudinary>=1.41.0",
+
+    # Logging & Monitoring
+    "loguru>=0.7.3",
+    "prometheus-client>=0.21.0",
+    "prometheus-fastapi-instrumentator>=7.0.0",
+
+    # Security
+    "cryptography>=44.0.0",
+    "bleach>=6.2.0",
+
+    # Utilities
+    "pydantic[email]>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "python-dotenv>=1.0.1",
+    "orjson>=3.10.0",
+    "aiofiles>=24.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "httpx>=0.28.0",
+    "factory-boy>=3.3.0",
+    "faker>=33.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+    "pre-commit>=4.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "api: API endpoint tests",
+    "slow: Slow running tests",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "S", "B", "A", "C4", "DTZ", "T20", "ICN"]
+ignore = ["S101", "S104"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+plugins = ["pydantic.mypy"]
