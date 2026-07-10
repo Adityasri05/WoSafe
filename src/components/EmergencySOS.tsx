@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSafeStore } from '@/store/useSafeStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '@/services/api';
 import { 
   ShieldAlert, 
   PhoneCall, 
@@ -23,17 +24,43 @@ export default function EmergencySOS() {
 
   // Countdown timer before dispatch
   useEffect(() => {
-    if (countdown > 0 && !dispatchStarted) {
+    if (dispatchStarted) return;
+    if (countdown > 0) {
       const timer = setTimeout(() => {
-        setCountdown(prev => prev - 1);
+        setCountdown(prev => {
+          if (prev <= 1) {
+            setDispatchStarted(true);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
       return () => clearTimeout(timer);
-    } else if (countdown === 0 && !dispatchStarted) {
-      setDispatchStarted(true);
     }
   }, [countdown, dispatchStarted]);
 
+  // Trigger SOS on backend when dispatch starts
+  useEffect(() => {
+    if (dispatchStarted) {
+      api.triggerSOS(37.7749, -122.4194, "GPS check-in location")
+        .then(result => {
+          if (typeof window !== 'undefined' && result?.id) {
+            localStorage.setItem('active_emergency_session_id', result.id);
+          }
+        })
+        .catch(err => console.warn("Failed triggering SOS on backend", err));
+    }
+  }, [dispatchStarted]);
+
   const handleCancel = () => {
+    if (typeof window !== 'undefined') {
+      const activeEmergencySessionId = localStorage.getItem('active_emergency_session_id');
+      if (activeEmergencySessionId) {
+        api.resolveSOS(activeEmergencySessionId, "User resolved SOS manually from UI")
+          .then(() => localStorage.removeItem('active_emergency_session_id'))
+          .catch(err => console.warn("Failed resolving SOS on backend", err));
+      }
+    }
     setEmergencyActive(false);
     setCurrentView('dashboard');
   };

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useSafeStore } from '@/store/useSafeStore';
 import { motion } from 'framer-motion';
+import { api } from '@/services/api';
 import { 
   ShieldCheck, 
   Clock, 
@@ -90,11 +91,33 @@ export default function SafeRoutes() {
     // Update safety score dynamically based on route selection
     setSafetyScore(selected.score);
     
+    // Call backend start journey
+    api.startJourney({
+      origin_latitude: 37.7749,
+      origin_longitude: -122.4194,
+      dest_latitude: selectedRoute === 'safest' ? 37.7891 : selectedRoute === 'fastest' ? 37.7830 : 37.7780,
+      dest_longitude: selectedRoute === 'safest' ? -122.4014 : selectedRoute === 'fastest' ? -122.4100 : -122.4150,
+      dest_address: destination,
+      route_type: selectedRoute,
+    }).then(result => {
+      if (typeof window !== 'undefined' && result?.id) {
+        localStorage.setItem('active_journey_id', result.id);
+      }
+    }).catch(err => console.warn("Failed to start journey on backend", err));
+    
     // Redirect back to dashboard to see active route drawing
     setCurrentView('dashboard');
   };
 
   const handleCancelJourney = () => {
+    if (typeof window !== 'undefined') {
+      const activeJourneyId = localStorage.getItem('active_journey_id');
+      if (activeJourneyId) {
+        api.stopJourney(activeJourneyId)
+          .then(() => localStorage.removeItem('active_journey_id'))
+          .catch(err => console.warn("Failed to stop journey on backend", err));
+      }
+    }
     setActiveJourney(null);
     setSafetyScore(94); // Reset to baseline
   };

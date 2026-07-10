@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useSafeStore } from '@/store/useSafeStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '@/services/api';
 import { 
   FileWarning, 
   MapPin, 
@@ -54,13 +55,21 @@ export default function IncidentForm() {
     }
   };
 
-  const generateAISummary = () => {
+  const generateAISummary = async () => {
     if (!description.trim()) return;
     setAiLoading(true);
-    setTimeout(() => {
+    try {
+      const prompt = `Synthesize a brief, professional, 2-sentence summary/dispatch of the following incident report for safety alerts. Be objective, concise, and do not use personal names. Description: "${description}". Location: "${location || 'unknown'}".`;
+      const response = await api.chatWithAI(prompt);
       setAiLoading(false);
-      setAiSummary(`AI SUMMARY: Verified incident report at ${location || 'current node'}. Category: ${category}. Telemetry matches ambient lighting deficit. Recommendation: Alert localized patrol units and suggest alternate route mappings for pedestrians.`);
-    }, 1500);
+      setAiSummary(`AI SUMMARY: ${response.response}`);
+    } catch (err) {
+      console.warn("Failed generating AI summary from backend, using mock fallback", err);
+      setTimeout(() => {
+        setAiLoading(false);
+        setAiSummary(`AI SUMMARY: Verified incident report at ${location || 'current node'}. Category: ${category}. Telemetry matches ambient lighting deficit. Recommendation: Alert localized patrol units and suggest alternate route mappings for pedestrians.`);
+      }, 1000);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -76,6 +85,30 @@ export default function IncidentForm() {
       anonymous,
       userReported: true
     });
+
+    // Map category to backend enum value
+    let backendCategory = 'other';
+    const catLower = category.toLowerCase();
+    if (catLower.includes('harassment')) backendCategory = 'harassment';
+    else if (catLower.includes('stalk')) backendCategory = 'stalking';
+    else if (catLower.includes('assault')) backendCategory = 'assault';
+    else if (catLower.includes('theft')) backendCategory = 'theft';
+    else if (catLower.includes('suspicious')) backendCategory = 'suspicious_activity';
+    else if (catLower.includes('unsafe')) backendCategory = 'unsafe_area';
+    else if (catLower.includes('infrastructure') || catLower.includes('light')) backendCategory = 'infrastructure';
+    else if (catLower.includes('alert')) backendCategory = 'safety_alert';
+
+    // Save to backend database
+    api.createIncident({
+      category: backendCategory,
+      title,
+      description: aiSummary ? `${description}\n\n[${aiSummary}]` : description,
+      severity: severity.toLowerCase(),
+      latitude: 37.7749,
+      longitude: -122.4194,
+      address: location || 'GPS Location',
+      is_anonymous: anonymous,
+    }).catch(err => console.warn("Failed saving incident to backend", err));
 
     setCurrentView('community');
   };
@@ -149,7 +182,7 @@ export default function IncidentForm() {
               <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest block">Severity Index</label>
               <select 
                 value={severity}
-                onChange={(e) => setSeverity(e.target.value as any)}
+                onChange={(e) => setSeverity(e.target.value as 'low' | 'medium' | 'high' | 'critical')}
                 className="w-full px-4 py-2.5 rounded-xl bg-bg-primary/50 border border-white/10 text-white text-xs font-semibold focus:border-accent-primary focus:outline-none"
               >
                 <option value="low">Low Severity</option>

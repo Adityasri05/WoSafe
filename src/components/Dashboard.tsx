@@ -21,12 +21,14 @@ import {
   Plus
 } from 'lucide-react';
 import SafetyMap from './SafetyMap';
+import { api } from '@/services/api';
 
 export default function Dashboard() {
   const { 
     currentView, 
     setCurrentView, 
     user, 
+    setUser,
     safetyScore, 
     setSafetyScore, 
     guardianModeActive, 
@@ -37,6 +39,30 @@ export default function Dashboard() {
 
   const [time, setTime] = useState('');
   const [battery, setBattery] = useState(87);
+
+  // Fetch dashboard data from backend
+  useEffect(() => {
+    api.getProfile()
+      .then(res => {
+        if (res) {
+          setUser({
+            name: res.name,
+            bloodGroup: res.blood_group,
+            medicalConditions: res.medical_conditions,
+            travelPreferences: res.travel_preferences,
+          });
+        }
+      })
+      .catch(err => console.warn("Failed fetching profile in dashboard", err));
+
+    api.getRiskAssessment(37.7749, -122.4194)
+      .then(res => {
+        if (res && res.safety_score) {
+          setSafetyScore(Math.round(res.safety_score));
+        }
+      })
+      .catch(err => console.warn("Failed getting risk score from backend", err));
+  }, [setUser, setSafetyScore]);
 
   // Time and Battery updates
   useEffect(() => {

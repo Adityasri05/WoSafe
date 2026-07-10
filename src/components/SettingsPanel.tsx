@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useSafeStore } from '@/store/useSafeStore';
 import { motion } from 'framer-motion';
+import { api } from '@/services/api';
 import { 
   Settings, 
   Lock, 
@@ -37,6 +38,11 @@ export default function SettingsPanel() {
 
   const handleSaveSettings = () => {
     setSafeWord(safeWordVal);
+    
+    api.updateProfile({
+      safe_word: safeWordVal
+    }).catch(err => console.warn("Failed updating safe_word on backend", err));
+
     setSaveSuccess(true);
     setTimeout(() => {
       setSaveSuccess(false);
@@ -219,7 +225,7 @@ export default function SettingsPanel() {
                     
                     <button
                       type="button"
-                      onClick={() => handleTogglePermission(key as any)}
+                      onClick={() => handleTogglePermission(key as keyof typeof permissions)}
                       className={`px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase transition-all ${
                         isApproved 
                           ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' 

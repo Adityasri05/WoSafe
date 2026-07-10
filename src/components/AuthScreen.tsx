@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useSafeStore } from '@/store/useSafeStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '@/services/api';
 import { 
   Shield, 
   Mail, 
@@ -28,7 +29,7 @@ export default function AuthScreen() {
 
   const [loading, setLoading] = useState(false);
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpSent) {
       if (!phoneNumber) return;
@@ -40,29 +41,44 @@ export default function AuthScreen() {
     } else {
       if (otpCode.length < 4) return;
       setLoading(true);
-      setTimeout(() => {
+      try {
+        await api.loginWithFirebase("mock-token");
         setLoading(false);
         setCurrentView('onboarding');
-      }, 1000);
+      } catch (err) {
+        console.warn("Backend auth failed, proceeding in offline/mock mode", err);
+        setLoading(false);
+        setCurrentView('onboarding');
+      }
     }
   };
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await api.loginWithFirebase("mock-token");
       setLoading(false);
       setCurrentView('onboarding');
-    }, 1500);
+    } catch (err) {
+      console.warn("Backend auth failed, proceeding in offline/mock mode", err);
+      setLoading(false);
+      setCurrentView('onboarding');
+    }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await api.loginWithFirebase("mock-token");
       setLoading(false);
       setCurrentView('onboarding');
-    }, 1200);
+    } catch (err) {
+      console.warn("Backend auth failed, proceeding in offline/mock mode", err);
+      setLoading(false);
+      setCurrentView('onboarding');
+    }
   };
 
   return (

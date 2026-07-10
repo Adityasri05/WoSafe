@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSafeStore } from '@/store/useSafeStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '@/services/api';
 import { 
   Radio, 
   MapPin, 
@@ -18,7 +19,7 @@ import {
 export default function GuardianMode() {
   const { setGuardianModeActive, setCurrentView, setEmergencyActive, user } = useSafeStore();
   const [seconds, setSeconds] = useState(0);
-  const [coords, setCoords] = useState({ lat: 40.7128, lng: -74.0060 });
+  const [coords, setCoords] = useState({ lat: 37.7749, lng: -122.4194 });
 
   // Timer and coordinate drift simulation
   useEffect(() => {
@@ -27,11 +28,16 @@ export default function GuardianMode() {
     }, 1000);
 
     const coordInterval = setInterval(() => {
-      setCoords(prev => ({
-        lat: prev.lat + (Math.random() - 0.5) * 0.0001,
-        lng: prev.lng + (Math.random() - 0.5) * 0.0001
-      }));
-    }, 2000);
+      setCoords(prev => {
+        const nextLat = prev.lat + (Math.random() - 0.5) * 0.0001;
+        const nextLng = prev.lng + (Math.random() - 0.5) * 0.0001;
+        
+        api.updateLocation(nextLat, nextLng, "Active Guardian Telemetry Location")
+          .catch(err => console.warn("Failed sending telemetry to backend", err));
+
+        return { lat: nextLat, lng: nextLng };
+      });
+    }, 4000);
 
     return () => {
       clearInterval(timer);

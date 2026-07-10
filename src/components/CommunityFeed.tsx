@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSafeStore } from '@/store/useSafeStore';
 import { motion } from 'framer-motion';
+import { api } from '@/services/api';
 import { 
   Users, 
   MapPin, 
@@ -20,6 +21,23 @@ import {
 
 export default function CommunityFeed() {
   const { incidents, voteIncident, setCurrentView } = useSafeStore();
+
+  // Fetch incidents on mount
+  useEffect(() => {
+    api.getIncidents()
+      .then(res => {
+        if (res && res.incidents) {
+          console.log("Fetched incidents from backend:", res.incidents);
+        }
+      })
+      .catch(err => console.warn("Failed to fetch incidents from backend", err));
+  }, []);
+
+  const handleVote = (id: string) => {
+    voteIncident(id);
+    api.voteIncident(id)
+      .catch(err => console.warn("Failed voting on incident on backend", err));
+  };
 
   const safeBusinesses = [
     { name: 'Cafe Bloom', address: '12 Maple St', services: '24/7 Waiting area, Phone charging, Taxi hotline link', type: 'Cafe' },
@@ -109,7 +127,7 @@ export default function CommunityFeed() {
                   </div>
 
                   <button
-                    onClick={() => voteIncident(inc.id)}
+                    onClick={() => handleVote(inc.id)}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/5 bg-white/5 text-text-secondary hover:text-white hover:bg-white/10 transition-colors"
                   >
                     <ArrowUp className="w-3.5 h-3.5 text-accent-ai" />

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useSafeStore } from '@/store/useSafeStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '@/services/api';
 import { 
   User, 
   MapPin, 
@@ -91,6 +92,26 @@ export default function OnboardingFlow() {
         dailyRoutes: routes
       });
       setSafeWord(safeWordVal);
+      
+      // Save profile to backend
+      api.updateProfile({
+        name: profileName,
+        blood_group: bloodGroup,
+        medical_conditions: medical,
+        travel_preferences: pref,
+        safe_word: safeWordVal,
+      }).catch(err => console.warn("Failed saving profile to backend", err));
+      
+      // Save contacts to backend
+      contacts.forEach(contact => {
+        api.addContact({
+          name: contact.name,
+          phone: contact.phone,
+          relation: contact.relation,
+          priority: 1,
+        }).catch(err => console.warn("Failed saving contact to backend", err));
+      });
+      
       setStep(4);
     } else if (step === 4) {
       setCurrentView('dashboard');

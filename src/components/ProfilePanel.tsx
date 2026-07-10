@@ -1,8 +1,7 @@
-'use client';
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSafeStore } from '@/store/useSafeStore';
 import { motion } from 'framer-motion';
+import { api } from '@/services/api';
 import { 
   User, 
   Phone, 
@@ -17,7 +16,22 @@ import {
 } from 'lucide-react';
 
 export default function ProfilePanel() {
-  const { user } = useSafeStore();
+  const { user, setUser } = useSafeStore();
+
+  useEffect(() => {
+    api.getProfile()
+      .then(res => {
+        if (res) {
+          setUser({
+            name: res.name,
+            bloodGroup: res.blood_group,
+            medicalConditions: res.medical_conditions,
+            travelPreferences: res.travel_preferences,
+          });
+        }
+      })
+      .catch(err => console.warn("Failed fetching user profile from backend", err));
+  }, []);
 
   const achievements = [
     { title: "Safe Voyager", desc: "Completed 50+ AI-protected commutes.", icon: <ShieldCheck className="w-5 h-5 text-accent-ai" />, date: "June 2026" },

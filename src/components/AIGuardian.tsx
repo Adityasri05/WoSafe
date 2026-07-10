@@ -1,8 +1,7 @@
-'use client';
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useSafeStore } from '@/store/useSafeStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '@/services/api';
 import { 
   Send, 
   Mic, 
@@ -27,6 +26,7 @@ export default function AIGuardian() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
+  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom
@@ -41,7 +41,7 @@ export default function AIGuardian() {
     "Activate Guardian Mode"
   ];
 
-  const handleSend = (text: string) => {
+  const handleSend = async (text: string) => {
     if (!text.trim()) return;
     
     // Add user message
@@ -49,35 +49,57 @@ export default function AIGuardian() {
     setInput('');
     setIsTyping(true);
 
-    // AI logic response simulation
-    setTimeout(() => {
-      setIsTyping(false);
-      const query = text.toLowerCase();
+    try {
+      const result = await api.chatWithAI(text, conversationId, {
+        latitude: 37.7749,
+        longitude: -122.4194,
+      });
       
-      if (query.includes('follow') || query.includes('danger') || query.includes('scared')) {
-        addAiMessage('ai', "🚨 CRITICAL RISK STATE DETECTED. I have flagged your location. I am ready to link with David Chen (+1 (555) 321-9876) and Emma Watson. Would you like me to trigger emergency SOS or activate Guardian Mode recording HUD right now?");
-      } 
-      else if (query.includes('guardian') || query.includes('activate guardian')) {
+      setIsTyping(false);
+      addAiMessage('ai', result.response);
+      if (result.conversation_id) {
+        setConversationId(result.conversation_id);
+      }
+      
+      if (result.emergency_detected) {
+        setEmergencyActive(true);
+        setCurrentView('emergency');
+      } else if (text.toLowerCase().includes('guardian')) {
         setGuardianModeActive(true);
-        addAiMessage('ai', "🛡️ Guardian Mode initialized. Telemetry tracking active. Front-facing camera lens calibrated. Audio scan active for safe word: 'Phoenix'. Let's walk safely together.");
-        // Short delay to redirect
-        setTimeout(() => {
-          setCurrentView('guardian-mode');
-        }, 2200);
-      } 
-      else if (query.includes('route') || query.includes('path') || query.includes('home') || query.includes('safest')) {
-        addAiMessage('ai', "🗺️ Analyzing local street lighting indexes and crowd clusters. I've computed the 'Safest Route' which bypasses a dark alley on 5th Ave and has active police presence. Let's switch to the Safe Routes planner.");
-        setTimeout(() => {
-          setCurrentView('routes');
-        }, 2200);
-      } 
-      else if (query.includes('police') || query.includes('station') || query.includes('help')) {
-        addAiMessage('ai', "📍 North Precinct Police Station is located 400m North-East (estimated arrival 4 mins walking). There is also a Metro Police Kiosk located 350m ahead. I have pinned them on your radar map.");
+        setTimeout(() => setCurrentView('guardian-mode'), 2000);
+      } else if (text.toLowerCase().includes('route')) {
+        setTimeout(() => setCurrentView('routes'), 2000);
       }
-      else {
-        addAiMessage('ai', "I am monitoring your local safety parameters continuously. You can ask me to compare safe routes, activate Guardian Mode, locate secure sanctuaries, or alert your emergency contacts.");
-      }
-    }, 1500);
+    } catch (error) {
+      console.warn("Backend chat failed, running fallback mock simulator", error);
+      setTimeout(() => {
+        setIsTyping(false);
+        const query = text.toLowerCase();
+        
+        if (query.includes('follow') || query.includes('danger') || query.includes('scared')) {
+          addAiMessage('ai', "🚨 CRITICAL RISK STATE DETECTED. I have flagged your location. I am ready to link with David Chen (+1 (555) 321-9876) and Emma Watson. Would you like me to trigger emergency SOS or activate Guardian Mode HUD right now?");
+        } 
+        else if (query.includes('guardian') || query.includes('activate guardian')) {
+          setGuardianModeActive(true);
+          addAiMessage('ai', "🛡️ Guardian Mode initialized. Telemetry tracking active. Front-facing camera lens calibrated. Audio scan active for safe word: 'Phoenix'. Let's walk safely together.");
+          setTimeout(() => {
+            setCurrentView('guardian-mode');
+          }, 2200);
+        } 
+        else if (query.includes('route') || query.includes('path') || query.includes('home') || query.includes('safest')) {
+          addAiMessage('ai', "🗺️ Analyzing local street lighting indexes and crowd clusters. I've computed the 'Safest Route' which bypasses a dark alley on 5th Ave and has active police presence. Let's switch to the Safe Routes planner.");
+          setTimeout(() => {
+            setCurrentView('routes');
+          }, 2200);
+        } 
+        else if (query.includes('police') || query.includes('station') || query.includes('help')) {
+          addAiMessage('ai', "📍 North Precinct Police Station is located 400m North-East (estimated arrival 4 mins walking). There is also a Metro Police Kiosk located 350m ahead. I have pinned them on your radar map.");
+        }
+        else {
+          addAiMessage('ai', "I am monitoring your local safety parameters continuously. You can ask me to compare safe routes, activate Guardian Mode, locate secure sanctuaries, or alert your emergency contacts.");
+        }
+      }, 1000);
+    }
   };
 
   const handleVoiceToggle = () => {
