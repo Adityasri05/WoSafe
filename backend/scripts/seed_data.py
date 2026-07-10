@@ -151,7 +151,7 @@ async def seed():
             if not safe_check.scalars().first():
                 pharmacy = SafeLocation(
                     name="Market Street 24/7 Pharmacy",
-                    location_type="safe_business",
+                    location_type="business",
                     latitude=37.7785,
                     longitude=-122.4150,
                     address="1201 Market St, San Francisco, CA 94103",
