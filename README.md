@@ -27,9 +27,11 @@ WoSafe is built with a premium, state-of-the-art interface designed to feel reli
 * **One-Click Guardian Mode**: Calibrates background microphone scanners and location tracking telemetry instantly.
 * **Ambient Lighting & Waveform HUD**: Visualises live microphone levels and audio calibration.
 
+
 ### 2. 🗺️ Neural Safe Routing (`SafeRoutes`)
 * **Safest Neural Path**: Recommends routes based on highest verified lighting coverage and active police checkpoints rather than just the shortest distance.
 * **Commute Details**: Displays live ETA, distance, active checkpoint counts, and verified safe businesses along the path.
+
 
 ### 3. 🚨 Emergency SOS Dispatch HUD
 * **5-Second Dispatch Countdown**: Prevents false alarms while allowing immediate emergency alert escalation.
@@ -46,6 +48,7 @@ WoSafe is built with a premium, state-of-the-art interface designed to feel reli
 * **Peer Upvoting System**: Community members verify report credibility in real time.
 
 ---
+
 
 ## 🛠️ Technology Stack
 
