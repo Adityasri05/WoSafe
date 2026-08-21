@@ -1,8 +1,10 @@
 # 🛡️ WoSafe — AI-Powered Women's Safety Intelligence Platform
 
+
 > **Tagline:** *"AI That Protects Before Danger Begins."*
 
 Welcome to the frontend codebase for **WoSafe**, the world’s most advanced AI-powered Women’s Safety Intelligence Platform. This repository hosts the responsive, interactive, and premium Next.js client interface. 
+
 
 Unlike traditional SOS alert buttons, WoSafe is a complete safety cockpit. It uses real-time threat intelligence, ambient lighting assessments, and predictive risk mapping to keep users safe on their daily journeys.
 
@@ -36,14 +38,17 @@ WoSafe is built with a premium, state-of-the-art interface designed to feel reli
 * **Localised Survival Guides**: Step-by-step physical defense and tactical strategies based on specific situations.
 * **Priority Contact Dialing**: Quick links to place cellular calls to trusted guardians.
 
+
 ### 4. 💬 AI Guardian Core (`AIGuardian`)
 * **Fully Encrypted Chat Interface**: A secure dialog helper powered by conversational AI.
 * **Natural Threat Recognition**: Automatically activates Emergency SOS if critical safety phrases or the vocal Safe Word (`"Phoenix"`) is spoken or typed.
+
 
 ### 5. 👥 Crowdsourced Intelligence Feed (`CommunityFeed`)
 * **Geotagged Safety Testimonies**: Users can file reports categorized by category (Harassment, Infrastructure Deficit, Unsafe Area).
 * **AI Incident Summarization**: Generates brief, objective two-sentence summary summaries of descriptions via the backend LLM.
 * **Peer Upvoting System**: Community members verify report credibility in real time.
+
 
 ---
 
@@ -57,7 +62,9 @@ WoSafe is built with a premium, state-of-the-art interface designed to feel reli
 * **Icons**: [Lucide React](https://lucide.dev/)
 * **Animations**: [Framer Motion](https://www.framer.com/motion/)
 
+
 ---
+
 
 ## 📁 Repository Structure
 
