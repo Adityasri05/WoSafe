@@ -5,7 +5,6 @@
 
 Welcome to the frontend codebase for **WoSafe**, the world’s most advanced AI-powered Women’s Safety Intelligence Platform. This repository hosts the responsive, interactive, and premium Next.js client interface. 
 
-
 Unlike traditional SOS alert buttons, WoSafe is a complete safety cockpit. It uses real-time threat intelligence, ambient lighting assessments, and predictive risk mapping to keep users safe on their daily journeys.
 
 ---
@@ -62,9 +61,7 @@ WoSafe is built with a premium, state-of-the-art interface designed to feel reli
 * **Icons**: [Lucide React](https://lucide.dev/)
 * **Animations**: [Framer Motion](https://www.framer.com/motion/)
 
-
 ---
-
 
 ## 📁 Repository Structure
 
