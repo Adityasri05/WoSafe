@@ -1,6 +1,5 @@
 # 🛡️ WoSafe — AI-Powered Women's Safety Intelligence Platform
 
-
 > **Tagline:** *"AI That Protects Before Danger Begins."*
 
 Welcome to the frontend codebase for **WoSafe**, the world’s most advanced AI-powered Women’s Safety Intelligence Platform. This repository hosts the responsive, interactive, and premium Next.js client interface. 
